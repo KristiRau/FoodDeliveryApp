@@ -1,4 +1,5 @@
 1. Introduction
+   
 Overview
 The project is for calculating delivery fee based on vehicle type and location and current weather conditions.
 Using Java, Spring framework, H2 database and RESTful interface for requesting delivery fee calculations.
@@ -20,6 +21,7 @@ city, vehicle type, and weather conditions.
 RESTful API: Exposes endpoints to request delivery fee.
 
 2. Design Overview
+   
 The classes are organized into packages based on their responsibilities. Each class focuses on a single
 responsibility, promoting code reusability and readability.
 
@@ -32,6 +34,7 @@ Util Layer: Contains utility classes and helper methods used across different pa
 WeatherCronJob Class: For cheduled tasks responsible for importing weather data from external sources.
 
 3. Database
+   
 Description of the Database Schema
 The database schema consists of a table named "weather" to store weather data observations and table named
 "base_fee_data" to save data used for calculating base fee. 
@@ -57,6 +60,7 @@ observation_timestamp: Timestamp for when the observation was recorded.
 Each row represents a single observation recorded at a specific weather station. 
 
 5. CronJob for Weather Data Importing
+   
 The WeatherCronJob class represents the implementation of a scheduled task (CronJob) responsible
 for importing weather data at regular intervals.
 The CronJob is configured to execute the fetchAndSaveWeatherDataTask() method according to the
@@ -73,6 +77,7 @@ The fetchAndSaveWeatherDataTask() fetches weather data through WeatherService cl
 (Estonian Environment Agency's weather portal) and saves it to the database using the WeatherRepository.
 
 5. Delivery Fee Calculation
+   
 Description of Calculating the Delivery Fee
 The delivery fee calculation is based on the input parameters (city and vehicle type) and weather conditions.
 This includes regional base fee for different cities and additional fees for specific weather conditions.
@@ -90,6 +95,7 @@ extra fee for weather conditions with car = 0 €
 total delivery fee = 4€
 
 6. REST Interface
+   
 The REST API provides an endpoint /delivery-fee for calculating the delivery fee based on specified input parameters.
 It also validates the parameters city and vehicle. 
 
@@ -102,6 +108,7 @@ If the calculation is successful, the API returns the calculated delivery fee as
 If the input parameters are invalid or the calculation fails, the API returns a Bad Request (HTTP status code 400).
 
 7. Usage
+   
 Instructions for Using the Application
 Send a GET request to the /delivery-fee endpoint with the required parameters (city and vehicle).
 Ensure that the city parameter specifies one of the supported cities (Tallinn, Tartu, Pärnu) and the
@@ -109,6 +116,7 @@ vehicle parameter specifies one of the supported vehicle types (Car, Scooter, Bi
 Receive the calculated delivery fee as the response.
 
 8. Additional info
+    
 I left some code commented out(i.e. what I used before I got the part where i fetch xml data from url to work)
 to show what I tried, and logger lines that I used to pinpoint some errors and where in code I 
 went wrong if I didn't get the wanted result.
