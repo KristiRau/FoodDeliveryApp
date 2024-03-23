@@ -14,26 +14,16 @@ import javax.annotation.PostConstruct;
 public class WeatherCronJob {
 
     private final WeatherService weatherService;
-    private final WeatherRepository weatherRepository;
     private static final Logger LOGGER = LoggerFactory.getLogger(WeatherService.class);
 
     @Autowired
-    public WeatherCronJob(WeatherService weatherService, WeatherRepository weatherRepository) {
+    public WeatherCronJob(WeatherService weatherService) {
         this.weatherService = weatherService;
-        this.weatherRepository = weatherRepository;
     }
 
     @Scheduled(cron = "0 15 * * * *")
     public void fetchAndSaveWeatherDataTask() {
         weatherService.fetchAndSaveWeatherData();
-    }
-
-    @PostConstruct
-    @Transactional
-    public void populateDatabaseIfNeeded() {
-        if (weatherRepository.count() == 0) {
-            weatherService.fetchAndSaveWeatherData();
-        }
     }
 }
 

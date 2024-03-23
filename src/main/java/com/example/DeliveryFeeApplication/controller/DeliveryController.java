@@ -1,7 +1,7 @@
 package com.example.DeliveryFeeApplication.controller;
 
 import com.example.DeliveryFeeApplication.service.DeliveryService;
-import com.example.DeliveryFeeApplication.util.StringUtils;
+import com.example.DeliveryFeeApplication.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +20,24 @@ public class DeliveryController {
     }
 
     @GetMapping("/delivery-fee")
-    public ResponseEntity<Double> calculateDeliveryFee(@RequestParam String city, @RequestParam String vehicle) {
-        try {
-            city = StringUtils.capitalizeEachWord(city);
-            vehicle = StringUtils.capitalizeEachWord(vehicle);
+    public ResponseEntity<Object> calculateDeliveryFee(@RequestParam String city, @RequestParam String vehicle) {
+        String validatedCity = ValidationUtils.isValidCity(city);
+        String validatedVehicle = ValidationUtils.isValidVehicleType(vehicle);
+        if (validatedCity == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid city: " + city);
+        }
 
-            double fee = deliveryService.calculateDeliveryFee(city, vehicle);
+        if (validatedVehicle == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid vehicle: " + vehicle);
+        }
+
+        try {
+            double fee = deliveryService.calculateDeliveryFee(validatedCity, vehicle);
             return ResponseEntity.ok(fee);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+
 }
