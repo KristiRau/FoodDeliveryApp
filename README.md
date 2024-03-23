@@ -12,12 +12,17 @@ Functionality to calculate delivery fee based on input parameters(vehicle and ci
 Using REST interface to request and retrieve a delivery fee.
 
 Core Modules
+
 The project consists with following core modules:
+
 Database Management: Includes the design and implementation of database tables to store weather data.
+
 Weather Data Importer (CronJob): Configurable scheduled task responsible for fetching weather data from
 the Estonian Environment Agency's weather portal and storing it in the database.
+
 Delivery Fee Calculator: Implements the logic for calculating delivery fees based on input parameters:
 city, vehicle type, and weather conditions.
+
 RESTful API: Exposes endpoints to request delivery fee.
 
 2. Design Overview
@@ -25,12 +30,18 @@ RESTful API: Exposes endpoints to request delivery fee.
 The classes are organized into packages based on their responsibilities. Each class focuses on a single
 responsibility, promoting code reusability and readability.
 
-The application is structured using a layered architecture:
+The application is structured using a layered architecture:   
+
 Controller Layer: Responsible for handling incoming HTTP requests and delegating the processing to the appropriate service classes.
+
 Service Layer: Contains application-specific functionality. Services store operations, interact with repositories.
+
 Repository Layer: Manages the interaction with the database.
+
 Model Layer: Defines the entities and data structures used throughout the application.
+
 Util Layer: Contains utility classes and helper methods used across different parts of the application.
+
 WeatherCronJob Class: For cheduled tasks responsible for importing weather data from external sources.
 
 3. Database
