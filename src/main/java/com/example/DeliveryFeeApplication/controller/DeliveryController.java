@@ -16,12 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
-    private final WeatherService weatherService;
 
     @Autowired
-    public DeliveryController(DeliveryService deliveryService, WeatherService weatherService) {
+    public DeliveryController(DeliveryService deliveryService) {
         this.deliveryService = deliveryService;
-        this.weatherService = weatherService;
     }
 
     @GetMapping("/delivery-fee")

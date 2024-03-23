@@ -25,15 +25,13 @@ public class DatabaseInitialization {
     
     @PostConstruct
     @Transactional
-    public void populateDatabaseIfNeeded() {
-        if (weatherRepository.count() == 0) {
+    public void populateDatabaseWhenStartingApplication() {
             weatherService.fetchAndSaveWeatherData();
-        }
     }
 
     @PostConstruct
     @Transactional
-    public void initializeBaseFees() {
+    public void initializeBaseFeesIfNeeded() {
         if (baseFeeRepository.count() == 0) {
             saveInitialBaseFeeData();
         }
