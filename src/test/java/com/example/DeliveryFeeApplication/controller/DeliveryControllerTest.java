@@ -1,57 +1,55 @@
 package com.example.DeliveryFeeApplication.controller;
 
 import com.example.DeliveryFeeApplication.service.DeliveryService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+
+@ExtendWith(MockitoExtension.class)
+@WebMvcTest(DeliveryController.class)
 public class DeliveryControllerTest {
 
-    @Mock
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
     private DeliveryService deliveryService;
 
-    @InjectMocks
-    private DeliveryController deliveryController;
-
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    public void testCalculateDeliveryFee_Success() {
-        String city = "Tallinn-Harku";
+    public void testCalculateDeliveryFee_Success() throws Exception {
+        String city = "Tallinn";
         String vehicle = "Car";
         double expectedFee = 4.0;
-
         when(deliveryService.calculateDeliveryFee(city, vehicle)).thenReturn(expectedFee);
-
-        ResponseEntity<Double> response = deliveryController.calculateDeliveryFee(city, vehicle);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedFee, response.getBody());
-        verify(deliveryService, times(1)).calculateDeliveryFee(city, vehicle);
+        mockMvc.perform(get("/delivery-fee")
+                        .param("city", city)
+                        .param("vehicle", vehicle))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").value(expectedFee));
     }
 
     @Test
-    public void testCalculateDeliveryFee_InvalidRequest() {
+    public void testCalculateDeliveryFee_InvalidRequest() throws Exception {
         String city = "InvalidCity";
         String vehicle = "Car";
 
         when(deliveryService.calculateDeliveryFee(city, vehicle)).thenThrow(new IllegalArgumentException());
-
-        ResponseEntity<Double> response = deliveryController.calculateDeliveryFee(city, vehicle);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertNull(response.getBody());
-        verify(deliveryService, times(1)).calculateDeliveryFee(city, vehicle);
+        mockMvc.perform(get("/delivery-fee")
+                        .param("city", city)
+                        .param("vehicle", vehicle))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(""));
     }
 }
