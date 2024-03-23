@@ -15,7 +15,7 @@ Core Modules
 
 The project consists with following core modules:
 
-Database Management: Includes the design and implementation of database tables to store weather data.
+Database Management: Includes the design and implementation of database tables to store weather data and base fee calculation data.
 
 Weather Data Importer (CronJob): Configurable scheduled task responsible for fetching weather data from
 the Estonian Environment Agency's weather portal and storing it in the database.
@@ -68,7 +68,8 @@ air_temperature: Air temperature recorded at the weather station.
 wind_speed: Wind speed recorded at the weather station.
 weather_phenomenon: Description of the weather phenomenon.
 observation_timestamp: Timestamp for when the observation was recorded.
-Each row represents a single observation recorded at a specific weather station. 
+extra_fee: stores calculated extra fee value based on weather conditions.
+Each row represents a single observation recorded at a specific weather station plus extra fee for given weatherconditions. 
 
 5. CronJob for Weather Data Importing
    
@@ -94,10 +95,9 @@ The delivery fee calculation is based on the input parameters (city and vehicle 
 This includes regional base fee for different cities and additional fees for specific weather conditions.
 
 Explanation of How Input Parameters and Weather Data are Used in the Calculation
-The DeliveryService class handles the delivery fee calculation. It first 
-retrieves the latest weather data for the specified city from the WeatherService. Based on the retrieved weather 
-data it calculates the base fee and any extra fees applicable due to weather 
-conditions. Finally, it calculates the total delivery fee by summing up the base fee and extra fees.
+The DeliveryService class handles the delivery fee calculation. It retrieves base fee from baseFeeRepository, based on given 
+city and vehicle, then gets extra fee from weatherRepository based on given city. 
+Finally, it calculates the total delivery fee by summing up the base fee and extra fees.
 
 Example Calculations Provided for Clarity
 Given two parameters: city=Tallinn and vehicle=car.
