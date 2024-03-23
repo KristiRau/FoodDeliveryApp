@@ -3,33 +3,29 @@ package com.example.DeliveryFeeApplication.service;
 import com.example.DeliveryFeeApplication.model.BaseFee;
 import com.example.DeliveryFeeApplication.model.Weather;
 import com.example.DeliveryFeeApplication.repository.BaseFeeRepository;
+import com.example.DeliveryFeeApplication.repository.WeatherRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 import java.util.logging.Logger;
-import java.util.List;
 
 @Service
 public class DeliveryService {
 
     private static final Logger LOGGER = Logger.getLogger(DeliveryService.class.getName());
-    private static final double AIRTEMP_LESS_THAN_MINUS_10 = 1.0;
-    private static final double AIRTEMP_BETWEEN_MINUS_10_AND_0 = 0.5;
-    private static final double WINDSPEED_BETWEEN_10_AND_20 = 0.5;
-    private static final double WEATHER_PHENOMENON_SNOW_OR_SLEET = 1.0;
-    private static final double WEATHER_PHENOMENON_RAIN = 0.5;
     private final WeatherService weatherService;
     private final BaseFeeRepository baseFeeRepository;
+    private final WeatherRepository weatherRepository;
 
-    public DeliveryService(WeatherService weatherService, BaseFeeRepository baseFeeRepository) {
+    public DeliveryService(WeatherService weatherService, BaseFeeRepository baseFeeRepository, WeatherRepository weatherRepository) {
         this.weatherService = weatherService;
         this.baseFeeRepository = baseFeeRepository;
+        this.weatherRepository = weatherRepository;
     }
 
     public double calculateDeliveryFee(String city, String vehicle) {
         LOGGER.info("Calculating delivery fee for city: " + city + " and vehicle: " + vehicle);
 
         Weather latestWeather = weatherService.getLatestWeatherDataForCity(city);
+        LOGGER.info("latestWeather" + latestWeather);
         if (latestWeather == null) {
             throw new IllegalArgumentException("No weather data available for " + city);
         }
@@ -55,9 +51,35 @@ public class DeliveryService {
     }
 
     private double calculateExtraFeeForWeatherConditions(String city, String vehicle, Weather latestWeather) {
-
         if (latestWeather == null) {
             throw new IllegalArgumentException("No weather data available for " + city);
+        }
+        double extraFee = 0.0;
+
+        if ("Scooter".equals(vehicle) || "Bike".equals(vehicle)) {
+            extraFee = weatherRepository.findLatestExtraFeeByCity(city);
+        }
+        return extraFee;
+    }
+
+    public boolean isWeatherSuitableForVehicle(String city, String vehicle) {
+        Weather latestWeather = weatherService.getLatestWeatherDataForCity(city);
+        if (latestWeather != null && ("Bike".equals(vehicle) || "Scooter".equals(vehicle))) {
+            return !(latestWeather.getWeatherPhenomenon().contains("glaze") ||
+                    latestWeather.getWeatherPhenomenon().contains("hail") ||
+                    latestWeather.getWeatherPhenomenon().contains("thunder") ||
+                    latestWeather.getWindSpeed() > 20);
+        }
+        return false;
+    }
+
+
+
+   /* private double calculateExtraFeeForWeatherConditions(String city, String vehicle, Weather latestWeather) {
+
+        if (latestWeather == null || vehicle.equals("Car")) {
+            throw new IllegalArgumentException("No weather data available for " + city + " or no extra fee " +
+                    "available for selected vehicle " + vehicle);
         }
         double extraFee = 0.0;
 
@@ -86,6 +108,6 @@ public class DeliveryService {
             }
         }
         return extraFee;
-    }
+    }*/
 
 }

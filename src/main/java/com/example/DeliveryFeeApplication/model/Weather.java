@@ -37,6 +37,9 @@ public class Weather {
     @Column(name = "observation_timestamp")
     private long observationTimestamp;
 
+    @Column(name = "extra_fee")
+    private double extraFee;
+
     @Override
     public String toString() {
         return "Weather{" +

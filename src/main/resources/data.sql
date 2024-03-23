@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS weather (
     air_temperature DOUBLE,
     wind_speed DOUBLE,
     weather_phenomenon VARCHAR(255),
+    extra_fee DOUBLE,
     observation_timestamp BIGINT
 );
 

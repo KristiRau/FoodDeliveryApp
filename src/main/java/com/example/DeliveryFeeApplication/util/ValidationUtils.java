@@ -18,11 +18,12 @@ public class ValidationUtils {
 
     public static String isValidVehicleType(String vehicle) {
         List<String> validVehicles = List.of("Car", "Scooter", "Bike");
-        if (vehicle != null && validVehicles.contains(vehicle)) {
-            return StringUtils.capitalizeEachWord(vehicle);
-        } else {
-            return null;
+        for (String validVehicle : validVehicles) {
+            if (validVehicle.equalsIgnoreCase(vehicle)) {
+                return StringUtils.capitalizeEachWord(vehicle);
+            }
         }
+        return null;
     }
 
 }

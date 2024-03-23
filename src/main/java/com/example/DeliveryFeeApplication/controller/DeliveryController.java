@@ -1,6 +1,9 @@
 package com.example.DeliveryFeeApplication.controller;
 
+import com.example.DeliveryFeeApplication.model.Weather;
 import com.example.DeliveryFeeApplication.service.DeliveryService;
+import com.example.DeliveryFeeApplication.service.WeatherService;
+import com.example.DeliveryFeeApplication.util.StringUtils;
 import com.example.DeliveryFeeApplication.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,16 +16,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
 
     private final DeliveryService deliveryService;
+    private final WeatherService weatherService;
 
     @Autowired
-    public DeliveryController(DeliveryService deliveryService) {
+    public DeliveryController(DeliveryService deliveryService, WeatherService weatherService) {
         this.deliveryService = deliveryService;
+        this.weatherService = weatherService;
     }
 
     @GetMapping("/delivery-fee")
     public ResponseEntity<Object> calculateDeliveryFee(@RequestParam String city, @RequestParam String vehicle) {
         String validatedCity = ValidationUtils.isValidCity(city);
         String validatedVehicle = ValidationUtils.isValidVehicleType(vehicle);
+
         if (validatedCity == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid city: " + city);
         }
@@ -31,11 +37,16 @@ public class DeliveryController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid vehicle: " + vehicle);
         }
 
-        try {
-            double fee = deliveryService.calculateDeliveryFee(validatedCity, vehicle);
-            return ResponseEntity.ok(fee);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        if (!deliveryService.isWeatherSuitableForVehicle(validatedCity, validatedVehicle)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Usage of selected vehicle type is " +
+                    "forbidden due to weather conditions.");
+        } else {
+            try {
+                double fee = deliveryService.calculateDeliveryFee(validatedCity, validatedVehicle);
+                return ResponseEntity.ok(fee);
+            } catch(IllegalArgumentException e){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
         }
     }
 

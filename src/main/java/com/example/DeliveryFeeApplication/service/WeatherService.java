@@ -67,8 +67,60 @@ public class WeatherService {
             }
 
             inputStream.close();
+            updateExtraFeeForAllWeatherEntries();
         } catch (Exception e) {
             LOGGER.error("An error occurred while fetching and saving weather data: {}", e.getMessage(), e);
+        }
+    }
+
+    private void updateExtraFeeForAllWeatherEntries() {
+        List<Weather> allWeatherEntries = weatherRepository.findAll();
+        for (Weather weather : allWeatherEntries) {
+            double extraFee = calculateExtraFeeForWeatherConditions(weather);
+            weather.setExtraFee(extraFee);
+        }
+        weatherRepository.saveAll(allWeatherEntries);
+    }
+
+    private double calculateExtraFeeForWeatherConditions(Weather weather) {
+        double airTemperature = weather.getAirTemperature();
+        double windSpeed = weather.getWindSpeed();
+        String weatherPhenomenon = weather.getWeatherPhenomenon();
+
+        double airTempExtraFee = calculateAirTempExtraFee(airTemperature);
+        double windSpeedExtraFee = calculateWindSpeedExtraFee(windSpeed);
+        double weatherPhenomenonExtraFee = calculateWeatherPhenomenonExtraFee(weatherPhenomenon);
+
+        return airTempExtraFee + windSpeedExtraFee + weatherPhenomenonExtraFee;
+    }
+
+    private double calculateAirTempExtraFee(double airTemperature) {
+        if (airTemperature < -10) {
+            return 1.0;
+        } else if (airTemperature >= -10 && airTemperature < 0) {
+            return 0.5;
+        } else {
+            return 0.0;
+        }
+    }
+
+    private double calculateWindSpeedExtraFee(double windSpeed) {
+        if (windSpeed > 10 && windSpeed < 20) {
+            return 0.5;
+        } else {
+            return 0.0;
+        }
+    }
+
+    private double calculateWeatherPhenomenonExtraFee(String weatherPhenomenon) {
+        String lowercasePhenomenon = weatherPhenomenon.toLowerCase();
+
+        if (lowercasePhenomenon.contains("rain")) {
+            return 0.5;
+        } else if (lowercasePhenomenon.contains("sleet") || lowercasePhenomenon.contains("snow")) {
+            return 1.0;
+        } else {
+            return 0.0;
         }
     }
 
